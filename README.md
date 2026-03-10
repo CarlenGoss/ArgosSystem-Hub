@@ -1,54 +1,37 @@
-Open Camera Visor - Backend Server 📹
-Este repositorio contiene el código del servidor (Backend) diseñado para ejecutarse en un dispositivo dedicado (ej. Samsung Galaxy S10) como parte del ecosistema Open Camera Visor.
+# Open Camera Visor - Android Client 📱
 
-El servidor se encarga de monitorear, registrar eventos de movimiento en formato .mp4 y exponer una API RESTful ligera para transmitir estos videos bajo demanda a los clientes autorizados a través de una red privada virtual (Tailscale).
+Esta es la aplicación cliente (Frontend) del ecosistema **Open Camera Visor**, desarrollada nativamente en Android con Kotlin. Actúa como el centro de control para visualizar, administrar y reproducir transmisiones de seguridad provenientes de servidores remotos a través de una red privada (Tailscale).
 
-🚀 Características Principales
-Detección y Grabación: Captura eventos de movimiento y los almacena localmente en formato MP4.
+## ✨ Características Destacadas
 
-API RESTful: Proporciona endpoints estructurados para consultar el inventario de videos y solicitar transmisiones de medios.
+* **Interfaz Material Design 3:** Diseño moderno, limpio y profesional, optimizado para aprovechar toda la pantalla (Edge-to-Edge) y separar dinámicamente el reproductor de los controles.
+* **Escáner QR Integrado:** Agrega nuevas cámaras instantáneamente escaneando un código QR que contiene la IP y el puerto del servidor.
+* **Reproductor Nativo (ExoPlayer):** Transmisión fluida de archivos de video y flujos remotos directamente en la aplicación.
+* **Gestión Dinámica de Eventos:** Consume automáticamente una API REST en segundo plano (usando Corrutinas) para listar los videos de movimiento grabados y reproducirlos con un solo toque.
+* **Persistencia Local:** Guarda la configuración y el inventario de cámaras de forma segura en el dispositivo usando `SharedPreferences`.
 
-Streaming Directo: Transmite video en tiempo real compatible con reproductores modernos como ExoPlayer.
+## 🛠️ Tecnologías y Librerías Utilizadas
 
-Red Privada Segura: Diseñado para operar sobre Tailscale, eliminando la necesidad de abrir puertos en el router y garantizando que solo los dispositivos autenticados en la red puedan acceder al flujo de video.
+* **Lenguaje:** Kotlin
+* **Arquitectura de UI:** ViewBinding & Navigation Component (Single-Activity Architecture)
+* **Multimedia:** [Media3 / ExoPlayer](https://developer.android.com/media/media3)
+* **Escaneo QR:** [ZXing (Zebra Crossing) Android Embedded](https://github.com/journeyapps/zxing-android-embedded)
+* **Asincronía:** Kotlin Coroutines (`lifecycleScope`, `Dispatchers.IO`)
+* **Red:** Soporte para tráfico HTTP en redes privadas virtuales (Tailscale).
 
-📡 Endpoints de la API
-El servidor opera por defecto en el puerto 8080. Asegúrate de usar la IP asignada por Tailscale (ej. 100.x.x.x) para realizar las peticiones.
+## 🚀 Instalación y Uso
 
-1. Obtener lista de eventos
-Devuelve un inventario en formato JSON con todos los clips de video grabados disponibles en el servidor.
+1. Clona este repositorio: `git clone https://github.com/TU-USUARIO/OpenCameraVisor-Android.git`
+2. Abre el proyecto en **Android Studio**.
+3. Sincroniza el proyecto con los archivos de Gradle.
+4. Compila y ejecuta en un dispositivo físico (recomendado para usar el hardware de la cámara al escanear el QR).
 
-URL: /videos
+> **Nota importante:** Para visualizar los videos, asegúrate de que el dispositivo Android esté conectado a tu red de **Tailscale** y tenga acceso a la IP del servidor.
 
-Método: GET
+## 🔗 Ecosistema Backend
 
-Respuesta Exitosa (200 OK):
+Esta aplicación requiere de un servidor activo para obtener la lista de eventos y las transmisiones de video. Puedes encontrar el repositorio del servidor aquí:
+* [Open Camera Visor - Backend Server](enlace-a-tu-repo-del-servidor-aqui)
 
-JSON
-[
-  "Motion_2026-03-10_02-53-45.mp4",
-  "Motion_2026-03-10_05-12-10.mp4"
-]
-2. Transmitir Video (Stream)
-Inicia la transmisión directa de un archivo de video específico.
-
-URL: /video/{nombre_del_archivo}
-
-Método: GET
-
-Parámetros de URL: * nombre_del_archivo: El nombre exacto del archivo .mp4 recuperado del endpoint /videos.
-
-Ejemplo de petición:
-GET http://100.114.71.13:8080/video/Motion_2026-03-10_02-53-45.mp4
-
-🛠️ Requisitos del Entorno
-Entorno de ejecución del servidor configurado en el dispositivo host.
-
-Tailscale instalado y activo en el dispositivo servidor para asignar la IP estática segura.
-
-Almacenamiento local con permisos de lectura/escritura para guardar los clips de video.
-
-📱 Ecosistema Cliente
-Este servidor está diseñado para ser consumido por el cliente de Android. Puedes encontrar el repositorio de la aplicación visor aquí:
-
-Open Camera Visor - Android App
+---
+*Desarrollado como solución integral de monitoreo remoto y administración de cámaras.*
