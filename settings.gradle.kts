@@ -22,5 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Open Camera Visor"
+rootProject.name = "ArgosSystem Hub"
 include(":app")

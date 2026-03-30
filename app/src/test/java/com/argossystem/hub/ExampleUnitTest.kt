@@ -1,4 +1,4 @@
-package com.carlengosez.open_camera_visor_house
+package com.argossystem.hub
 
 import org.junit.Test
 

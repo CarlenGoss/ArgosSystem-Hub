@@ -1,4 +1,4 @@
-package com.carlengosez.open_camera_visor_house
+package com.argossystem.hub
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.carlengosez.open_camera_visor_house", appContext.packageName)
+        assertEquals("com.argossystem.hub", appContext.packageName)
     }
 }
