@@ -11,7 +11,11 @@ import com.argossystem.hub.model.ArgosNode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DashboardScreen(nodes: List<ArgosNode>, onAddClick: () -> Unit) {
+fun DashboardScreen(
+    nodes: List<ArgosNode>,
+    onAddClick: () -> Unit,
+    onNodeSelected: (String) -> Unit // ⚡ ¡Esta es la pieza que nos faltaba!
+) {
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("ArgosSystem Hub 🛡️") })
@@ -30,15 +34,19 @@ fun DashboardScreen(nodes: List<ArgosNode>, onAddClick: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(nodes) { node ->
-                NodeCard(node)
+                // Aquí conectamos la tarjeta directamente con la acción de la pantalla
+                NodeCard(node = node, onNodeSelected = onNodeSelected)
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NodeCard(node: ArgosNode) {
+fun NodeCard(node: ArgosNode, onNodeSelected: (String) -> Unit) {
     Card(
+        // ⚡ ¡Aquí está la magia! Hacemos que la tarjeta reaccione al toque
+        onClick = { onNodeSelected(node.ip) },
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {

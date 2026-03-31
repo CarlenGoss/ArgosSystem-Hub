@@ -4,56 +4,61 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.mutableStateListOf
+import androidx.activity.viewModels
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import com.argossystem.hub.model.ArgosNode
+import androidx.compose.runtime.setValue
 import com.argossystem.hub.ui.dashboard.DashboardScreen
+import com.argossystem.hub.ui.player.VideoPlayerScreen
 import com.argossystem.hub.ui.theme.ArgosSystemHubTheme
 import com.argossystem.hub.utils.QrDecoder
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 
 class MainActivity : ComponentActivity() {
+
+    // Inicializamos el ViewModel de forma profesional
+    private val viewModel: MainViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             ArgosSystemHubTheme {
-                // Nuestra lista de nodos guardados
-                val nodes = remember { mutableStateListOf<ArgosNode>() }
+                val scanner = GmsBarcodeScanning.getClient(this)
 
-                // Preparamos el escáner nativo de Google
-                val scanner = GmsBarcodeScanning.getClient(this@MainActivity)
+                // Variable para saber en qué pantalla estamos (null = Dashboard, String = Reproductor)
+                var selectedIp by remember { mutableStateOf<String?>(null) }
 
-                DashboardScreen(
-                    nodes = nodes,
-                    onAddClick = {
-                        // ⚡ Al tocar el "+", abrimos la cámara
-                        scanner.startScan()
-                            .addOnSuccessListener { barcode ->
-                                // Si escaneó algo, sacamos el texto
-                                val rawValue = barcode.rawValue
-                                if (rawValue != null) {
-                                    // Le pasamos el texto a nuestro decodificador (utils)
-                                    val decodedNode = QrDecoder.decodeArgosQr(rawValue)
-
-                                    if (decodedNode != null) {
-                                        // Si el QR era válido y tenía el JSON, lo agregamos a la lista
-                                        nodes.add(decodedNode)
-                                        Toast.makeText(this@MainActivity, "Conectado: ${decodedNode.name}", Toast.LENGTH_SHORT).show()
-                                    } else {
-                                        // Si escanearon el menú de un restaurante u otro QR inválido
-                                        Toast.makeText(this@MainActivity, "QR inválido. Escanea un dispositivo ArgosSystem.", Toast.LENGTH_LONG).show()
+                if (selectedIp == null) {
+                    // PANTALLA 1: La lista de cámaras
+                    DashboardScreen(
+                        nodes = viewModel.nodes,
+                        onAddClick = {
+                            scanner.startScan().addOnSuccessListener { barcode ->
+                                barcode.rawValue?.let { text ->
+                                    QrDecoder.decodeArgosQr(text)?.let { newNode ->
+                                        viewModel.addNode(newNode)
+                                        Toast.makeText(this, "Nodo guardado", Toast.LENGTH_SHORT)
+                                            .show()
                                     }
                                 }
                             }
-                            .addOnCanceledListener {
-                                // El usuario cerró la cámara sin escanear nada (no hacemos nada)
-                            }
-                            .addOnFailureListener { e ->
-                                // Hubo un error con la cámara
-                                Toast.makeText(this@MainActivity, "Error en cámara: ${e.message}", Toast.LENGTH_SHORT).show()
-                            }
-                    }
-                )
+                        },
+                        // Cuando toquemos una tarjeta, guardamos su IP y la pantalla cambiará sola
+                        onNodeSelected = { ip ->
+                            selectedIp = ip
+                        }
+                    )
+                } else {
+                    // PANTALLA 2: El reproductor de video
+                    VideoPlayerScreen(
+                        ip = selectedIp!!,
+                        onBack = {
+                            // Al darle atrás, volvemos a poner la IP en nulo para regresar al Dashboard
+                            selectedIp = null
+                        }
+                    )
+                }
             }
         }
     }

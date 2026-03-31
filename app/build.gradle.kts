@@ -56,4 +56,9 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     implementation("com.google.android.gms:play-services-code-scanner:16.1.0")
+    // Librería para convertir objetos a JSON y viceversa
+    implementation("com.google.code.gson:gson:2.13.2")
+    // El motor de reproducción de video de Google (ExoPlayer / Media3)
+    implementation("androidx.media3:media3-exoplayer:1.2.1")
+    implementation("androidx.media3:media3-ui:1.2.1")
 }
