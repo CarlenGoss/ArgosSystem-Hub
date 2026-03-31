@@ -21,4 +21,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         nodes.add(node)
         repository.saveNodes(nodes) // Guardamos el cambio de inmediato
     }
+    fun clearAllNodes() {
+        nodes.clear()
+        repository.saveNodes(nodes)
+    }
+    fun deleteNode(node: ArgosNode) {
+        nodes.remove(node)
+        repository.saveNodes(nodes)
+    }
 }

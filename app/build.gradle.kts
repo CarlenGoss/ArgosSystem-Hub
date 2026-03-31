@@ -59,6 +59,8 @@ dependencies {
     // Librería para convertir objetos a JSON y viceversa
     implementation("com.google.code.gson:gson:2.13.2")
     // El motor de reproducción de video de Google (ExoPlayer / Media3)
-    implementation("androidx.media3:media3-exoplayer:1.2.1")
-    implementation("androidx.media3:media3-ui:1.2.1")
+    implementation("androidx.media3:media3-exoplayer:1.10.0")
+    implementation("androidx.media3:media3-ui:1.10.0")
+    // Librería para tener todos los iconos (incluyendo Videocam)
+    implementation("androidx.compose.material:material-icons-extended")
 }
