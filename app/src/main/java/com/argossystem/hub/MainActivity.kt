@@ -38,16 +38,16 @@ class MainActivity : ComponentActivity() {
                 val scanner = GmsBarcodeScanning.getClient(this)
 
                 // 1. Estado para la IP seleccionada (Video)
-                var selectedIp by remember { mutableStateOf<String?>(null) }
+                var selectedNode by remember { mutableStateOf<com.argossystem.hub.model.ArgosNode?>(null) }
 
                 // 2. Estado para la pestaña actual (Navegación)
                 var currentScreen by remember { mutableStateOf<Screen>(Screen.Home) }
 
-                if (selectedIp != null) {
+                if (selectedNode != null) {
                     // PANTALLA COMPLETA: Reproductor
                     VideoPlayerScreen(
-                        ip = selectedIp!!,
-                        onBack = { selectedIp = null }
+                        node = selectedNode!!, // ⚡ Le pasamos el objeto completo
+                        onBack = { selectedNode = null }
                     )
                 } else {
                     // PANTALLA CON NAVEGACIÓN: Scaffold + BottomBar
@@ -69,9 +69,6 @@ class MainActivity : ComponentActivity() {
                         // El contenido cambia según 'currentScreen'
                         Surface(modifier = Modifier.padding(innerPadding)) {
                             when (currentScreen) {
-                                // ... dentro del when(currentScreen) ...
-                                Screen.Notifications -> NotificationsScreen()
-                                Screen.Settings -> SettingsScreen(onDeleteAll = { viewModel.clearAllNodes() })
                                 Screen.Home -> DashboardScreen(
                                     nodes = viewModel.nodes,
                                     onAddClick = {
@@ -84,19 +81,15 @@ class MainActivity : ComponentActivity() {
                                             }
                                         }
                                     },
-                                    onNodeSelected = { ip -> selectedIp = ip },
+                                    // ⚡ CORREGIDO: Ahora pasamos el objeto 'node' completo al estado
+                                    onNodeSelected = { node -> selectedNode = node },
                                     onDeleteNode = { node -> viewModel.deleteNode(node) }
                                 )
-                                Screen.Notifications -> {
-                                    // Aquí puedes poner el componente de notificaciones
-                                    // NotificationsScreen()
-                                    Text("Historial de Alertas (Próximamente)", modifier = Modifier.padding(16.dp))
-                                }
-                                Screen.Settings -> {
-                                    // Aquí puedes poner tu diseño de Ajustes/Zona de Peligro
-                                    // SettingsScreen()
-                                    Text("Ajustes del Sistema (Próximamente)", modifier = Modifier.padding(16.dp))
-                                }
+
+                                // ⚡ Deja solo una versión de estos para que no choque:
+                                Screen.Notifications -> NotificationsScreen()
+
+                                Screen.Settings -> SettingsScreen(onDeleteAll = { viewModel.clearAllNodes() })
                             }
                         }
                     }

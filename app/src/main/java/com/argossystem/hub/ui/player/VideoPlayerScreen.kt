@@ -22,7 +22,7 @@ import androidx.media3.ui.PlayerView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun VideoPlayerScreen(ip: String, onBack: () -> Unit) {
+fun VideoPlayerScreen(node: com.argossystem.hub.model.ArgosNode, onBack: () -> Unit) { // ⚡ CAMBIO: Ahora recibe el 'node' completo
     val context = LocalContext.current
 
     // ⚡ ESTADOS DE LA INTERFAZ
@@ -30,9 +30,12 @@ fun VideoPlayerScreen(ip: String, onBack: () -> Unit) {
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     // 1. Configuramos el motor del reproductor
-    val exoPlayer = remember {
+    // Usamos 'remember(node)' para que si por alguna razón el objeto cambia, el player se reinicie
+    val exoPlayer = remember(node) {
         ExoPlayer.Builder(context).build().apply {
-            val streamUrl = "http://$ip:8080/video"
+            // ⚡ AQUÍ ESTÁ LA MAGIA: Usamos la IP y el Token del objeto node
+            val streamUrl = "http://${node.ip}:8080/stream?token=${node.token}"
+
             setMediaItem(MediaItem.fromUri(streamUrl))
             prepare()
             playWhenReady = true
@@ -43,28 +46,23 @@ fun VideoPlayerScreen(ip: String, onBack: () -> Unit) {
     DisposableEffect(exoPlayer) {
         val listener = object : Player.Listener {
             override fun onPlaybackStateChanged(playbackState: Int) {
-                // Si está cargando el video
                 if (playbackState == Player.STATE_BUFFERING) {
                     isLoading = true
-                }
-                // Si el video ya empezó a reproducirse
-                else if (playbackState == Player.STATE_READY) {
+                } else if (playbackState == Player.STATE_READY) {
                     isLoading = false
                     errorMessage = null
                 }
             }
 
             override fun onPlayerError(error: PlaybackException) {
-                // Si la cámara está apagada o no hay conexión
                 isLoading = false
-                errorMessage = "No se pudo conectar a la cámara.\nVerifica que esté encendida y en la misma red."
+                // Error más descriptivo
+                errorMessage = "Error de conexión con ${node.name}.\nVerifica el Token y la red Tailscale."
             }
         }
 
-        // Conectamos el oyente
         exoPlayer.addListener(listener)
 
-        // Limpieza al salir de la pantalla
         onDispose {
             exoPlayer.removeListener(listener)
             exoPlayer.release()
@@ -75,7 +73,7 @@ fun VideoPlayerScreen(ip: String, onBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Cámara: $ip") },
+                title = { Text(node.name) }, // ⚡ Ahora muestra el nombre bonito de la cámara
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Atrás")
@@ -84,26 +82,23 @@ fun VideoPlayerScreen(ip: String, onBack: () -> Unit) {
             )
         }
     ) { padding ->
-        // Un "Box" nos permite poner elementos uno encima del otro
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .background(Color.Black), // Fondo negro como en el cine
+                .background(Color.Black),
             contentAlignment = Alignment.Center
         ) {
-            // Capa 1: El reproductor de video al fondo
             AndroidView(
                 modifier = Modifier.fillMaxSize(),
                 factory = { ctx ->
                     PlayerView(ctx).apply {
                         player = exoPlayer
-                        useController = false // Escondemos los controles porque es en vivo
+                        useController = false
                     }
                 }
             )
 
-            // Capa 2: Si está cargando, dibujamos la rueda
             if (isLoading && errorMessage == null) {
                 CircularProgressIndicator(
                     color = MaterialTheme.colorScheme.primary,
@@ -111,7 +106,6 @@ fun VideoPlayerScreen(ip: String, onBack: () -> Unit) {
                 )
             }
 
-            // Capa 3: Si hay un error, mostramos el aviso visual
             if (errorMessage != null) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -119,7 +113,7 @@ fun VideoPlayerScreen(ip: String, onBack: () -> Unit) {
                 ) {
                     Icon(
                         imageVector = Icons.Default.Warning,
-                        contentDescription = "Error de conexión",
+                        contentDescription = "Error",
                         tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier.size(64.dp)
                     )

@@ -19,7 +19,7 @@ import com.argossystem.hub.model.ArgosNode
 fun DashboardScreen(
     nodes: List<ArgosNode>,
     onAddClick: () -> Unit,
-    onNodeSelected: (String) -> Unit,
+    onNodeSelected: (ArgosNode) -> Unit, // ⚡ CAMBIO: Ahora envía el objeto ArgosNode completo
     onDeleteNode: (ArgosNode) -> Unit
 ) {
     Scaffold(
@@ -48,7 +48,6 @@ fun DashboardScreen(
                 )
             }
 
-            // La lista de cámaras, cada una con su info de almacenamiento
             items(nodes) { node ->
                 UnifiedNodeCard(
                     node = node,
@@ -62,10 +61,13 @@ fun DashboardScreen(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun UnifiedNodeCard(node: ArgosNode, onNodeSelected: (String) -> Unit, onDelete: () -> Unit) {
+fun UnifiedNodeCard(
+    node: ArgosNode,
+    onNodeSelected: (ArgosNode) -> Unit, // ⚡ CAMBIO: Ajustamos el tipo aquí también
+    onDelete: () -> Unit
+) {
     var showDeleteDialog by remember { mutableStateOf(false) }
 
-    // Diálogo de confirmación (igual que antes)
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
@@ -81,18 +83,16 @@ fun UnifiedNodeCard(node: ArgosNode, onNodeSelected: (String) -> Unit, onDelete:
         )
     }
 
-    // Diseño Unificado (Parecido a tus capturas)
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .combinedClickable(
-                onClick = { onNodeSelected(node.ip) },
+                onClick = { onNodeSelected(node) }, // ⚡ CAMBIO: Enviamos 'node' en vez de 'node.ip'
                 onLongClick = { showDeleteDialog = true }
             ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // Fila 1: Nombre, IP y Estado
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -103,7 +103,6 @@ fun UnifiedNodeCard(node: ArgosNode, onNodeSelected: (String) -> Unit, onDelete:
                     Text(text = "IP: ${node.ip}", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
                 }
 
-                // Badge de "En línea"
                 Surface(
                     color = Color(0xFFE8F5E9),
                     contentColor = Color(0xFF2E7D32),
@@ -117,7 +116,6 @@ fun UnifiedNodeCard(node: ArgosNode, onNodeSelected: (String) -> Unit, onDelete:
             HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Fila 2: Almacenamiento (Unificado)
             Text("Almacenamiento Local", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(8.dp))
 
